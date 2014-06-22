@@ -168,7 +168,8 @@ if __name__ == '__main__':
     default_method = os.environ.get('OSCURL_METHOD', 'GET')
     default_format = os.environ.get('OSCURL_FORMAT', 'RAW')
 
-    parser = optparse.OptionParser()
+    usage = "usage: %prog [options] [<request_body_file>]"
+    parser = optparse.OptionParser(usage=usage)
     parser.add_option("-s", "--service", dest="service",
                       help="service name or type, " +
                            "default=%s" % default_service,
