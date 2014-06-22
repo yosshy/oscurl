@@ -254,7 +254,7 @@ Examples
    ```
    or
    ```
-   $ oscurl -m POST -p - < /servers create_instance_body
+   $ oscurl -m POST -p /servers - < create_instance_body
    ```
 
 * Show an instance information:
