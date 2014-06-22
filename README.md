@@ -1,11 +1,25 @@
-======
 oscurl
 ======
 
-oscurl is a tool to access OpenStack APIs as raw. It's useful to test/check/confirm them.
+oscurl is a tool to access OpenStack APIs as raw. You can specify method, 
+URL path and body of HTTP requests freely. So It's useful to test, check or
+confirm OpenStack APIs.
+
+And you don't have to handle Keystone authentication; oscurl does it 
+automatically with OpenStack credentials.
+
+
+You can use oscurl with:
+* -m <method>: POST/PUT/GET/SHOW/HEAD method for HTTP requests.
+* <file>: the body of HTTP request.
+* -p <path>|-P <fullpath>: Either fullpath(/v2/{tenant_id}/servers) or path(/servers).
+* -r: display HTTP request
+* -f <format>: RAW/HEADER/BODY/JSON/YAML/NONE format for HTTP response.
+* -d: debug mode
+
 
 Install
-=======
+-------
 
 1. Download oscurl.
    ```
@@ -43,8 +57,9 @@ Install
      -r, --dump-request    dump HTTP request
      ```
 
+
 Usage
-=====
+-----
 
 1. Set environment variables as same as you use nova command.
    ```
@@ -63,8 +78,9 @@ Usage
    {"servers": []}
    ```
 
-Output Formats
-==============
+
+Output Format
+-------------
 
 * RAW: Both HTTP response headers and body (Default)
    ```
@@ -166,7 +182,7 @@ Output Formats
    ```
 
 Examples
-========
+--------
 
 * Get server list:
   ```
