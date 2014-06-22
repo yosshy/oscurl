@@ -227,3 +227,42 @@ Examples
    ```
    $ oscurl -s network -p /v2.0/ports
    ```
+
+* Create a new instance:
+   ```
+   $ cat create_instance_body
+   {
+       "server": {
+           "name": "server-test-1",
+           "imageRef": "19befdd4-248b-4b8d-b586-8a91a8bf8623",
+           "flavorRef": "1",
+           "max_count": 1,
+           "min_count": 1,
+           "networks": [
+               {
+                   "uuid": "6a2c033b-3f50-4f43-97fa-2517ccdc28d9"
+               }
+           ],
+           "security_groups": [
+               {
+                   "name": "default"
+               }
+           ]
+       }
+   }
+   $ oscurl -m POST -p /servers create_instance_body
+   ```
+   or
+   ```
+   $ oscurl -m POST -p - < /servers create_instance_body
+   ```
+
+* Show an instance information:
+   ```
+   $ oscurl -p /servers/fdec5b9e-9b6a-4eb4-8684-6c75cd275559
+   ```
+
+* Delete an instance:
+   ```
+   $ oscurl -p /servers/fdec5b9e-9b6a-4eb4-8684-6c75cd275559 -m DELETE
+   ```
