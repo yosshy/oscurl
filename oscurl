@@ -190,8 +190,8 @@ if __name__ == '__main__':
     parser.add_option("-P", "--full-path", dest="fullpath",
                       help="full path of URL", metavar="FULLPATH")
     parser.add_option("-f", "--format", dest="format",
-                      help="type of response output"
-                           "(RAW|HEADER|BODY|YAML|JSON|NONE), "
+                      help="format of response output "
+                           "(RAW/HEADER/BODY/YAML/JSON/NONE), "
                            "default=%s" % default_format,
                       metavar="FORMAT", default=default_format)
     parser.add_option("-d", "--debug",

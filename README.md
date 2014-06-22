@@ -53,8 +53,8 @@ Install
      -P FULLPATH, --full-path=FULLPATH
                            full path of URL
      -f FORMAT, --format=FORMAT
-                           type of response
-                           output(RAW|HEADER|BODY|YAML|JSON|NONE), default=RAW
+                           format of response output
+                           (RAW/HEADER/BODY/YAML/JSON/NONE), default=RAW
      -d, --debug           debug mode
      -r, --dump-request    dump HTTP request
    ```
