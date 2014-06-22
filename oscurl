@@ -171,12 +171,17 @@ if __name__ == '__main__':
     usage = "usage: %prog [options] [<request_body_file>]"
     parser = optparse.OptionParser(usage=usage)
     parser.add_option("-s", "--service", dest="service",
-                      help="service name or type, " +
+                      help="service name "
+                      "(cinder/ec2/glance/keystone/nova/quantum)"
+                      " or type "
+                      "(volume/ec2/image/identity/compute/network)"
+                      ", " +
                            "default=%s" % default_service,
                       metavar="SERVICE",
                       default=default_service)
     parser.add_option("-m", "--method", dest="method",
-                      help="request method (POST/GET/DELETE/...), "
+                      help="request method "
+                           "(GET/HEAD/POST/PUT/DELETE), "
                            "default=%s" % default_method,
                       metavar="METHOD", default=default_method)
     parser.add_option("-p", "--path", dest="path",

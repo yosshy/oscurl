@@ -44,9 +44,11 @@ Install
    Options:
      -h, --help            show this help message and exit
      -s SERVICE, --service=SERVICE
-                           service name or type, default=compute
+                           service name (cinder/ec2/glance/keystone/nova/quantum)
+                           or type (volume/ec2/image/identity/compute/network),
+                           default=compute
      -m METHOD, --method=METHOD
-                           request method (POST/GET/DELETE/...), default=GET
+                           request method (GET/HEAD/POST/PUT/DELETE), default=GET
      -p PATH, --path=PATH  differential path of URL
      -P FULLPATH, --full-path=FULLPATH
                            full path of URL
@@ -55,7 +57,7 @@ Install
                            output(RAW|HEADER|BODY|YAML|JSON|NONE), default=RAW
      -d, --debug           debug mode
      -r, --dump-request    dump HTTP request
-     ```
+   ```
 
 
 Usage
