@@ -39,7 +39,7 @@ Install
 4. Test oscurl.
    ```
    $ oscurl -h
-   Usage: oscurl [options]
+   Usage: oscurl [options] [<request_body_file>]
 
    Options:
      -h, --help            show this help message and exit
