@@ -18,8 +18,8 @@ You can use oscurl with:
 * -d: debug mode
 
 
-Install
--------
+Installation
+------------
 
 1. Download oscurl.
    ```
