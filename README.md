@@ -10,11 +10,11 @@ automatically with OpenStack credentials.
 
 
 You can use oscurl with:
-* -m <method>: POST/PUT/GET/SHOW/HEAD method for HTTP requests.
-* <file>: the body of HTTP request.
-* -p <path>|-P <fullpath>: Either fullpath(/v2/{tenant_id}/servers) or path(/servers).
+* -m METHOD: POST/PUT/GET/SHOW/HEAD method for HTTP requests.
+* FILE: the body of HTTP request.
+* -p PATH|-P FULLPATH: Either fullpath(/v2/{tenant_id}/servers) or path(/servers).
 * -r: display HTTP request
-* -f <format>: RAW/HEADER/BODY/JSON/YAML/NONE format for HTTP response.
+* -f FORMAT: RAW/HEADER/BODY/JSON/YAML/NONE format for HTTP response.
 * -d: debug mode
 
 
