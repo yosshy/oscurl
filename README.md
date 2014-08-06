@@ -98,7 +98,7 @@ Output Format
 
 * HEADER: Only HTTP response headers
    ```
-   $ oscurl -p /servers
+   $ oscurl -p /servers -f HEADER
    HTTP/1.1 200 OK
    X-Compute-Request-Id: req-f2c0adc9-288b-4a65-8243-b112d1dc60b6
    Content-Type: application/json
@@ -109,7 +109,7 @@ Output Format
 
 * BODY: Only HTTP response body
    ```
-   $ oscurl -p /servers
+   $ oscurl -p /servers -f BODY
    {"servers": [{"id": "fdec5b9e-9b6a-4eb4-8684-6c75cd275559", "links": [{"href": "http://192.168.0.11:8774/v2/d046e2315c27456b9eb26740a9e39143/servers/fdec5b9e-9b6a-4eb4-8684-6c75cd275559", "rel": "self"}, {"href": "http://192.168.0.11:8774/d046e2315c27456b9eb26740a9e39143/servers/fdec5b9e-9b6a-4eb4-8684-6c75cd275559", "rel": "bookmark"}], "name": "server-test-1"}]}
    ```
 
