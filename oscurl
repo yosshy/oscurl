@@ -91,14 +91,23 @@ def get_token(service):
         error_exit('Service %s not found\n' % service)
 
     public_url = s['endpoints'][0]['publicURL']
+    internal_url = s['endpoints'][0]['internalURL']
+    admin_url = s['endpoints'][0]['adminURL']
     token = response_body['access']['token']['id']
 
-    return (public_url, token)
+    return (public_url, internal_url, admin_url, token)
 
 
 def do_request(body, **kwargs):
     service = kwargs['service']
-    (url, token) = get_token(service)
+    (purl, iurl, aurl, token) = get_token(service)
+
+    if kwargs.get('api') == 'admin':
+        url = aurl
+    elif kwargs.get('api') == 'internal':
+        url = iurl
+    else:
+        url = purl
 
     urlobj = urlparse.urlparse(url)
     host = urlobj.hostname
@@ -202,13 +211,18 @@ if __name__ == '__main__':
                       action="store_true", dest="dump_request",
                       default=False,
                       help="dump HTTP request")
+    parser.add_option("-t", "--api",
+                      dest="api",
+                      default='public',
+                      help="API type (public/internal/admin), "
+                           "default=public")
 
     (options, args) = parser.parse_args()
 
-    if not options.method in ['GET', 'HEAD', 'POST', 'PUT', 'DELETE']:
+    if options.method not in ['GET', 'HEAD', 'POST', 'PUT', 'DELETE']:
         error_exit('invalid HTTP method %s\n' % options.method)
 
-    if not options.format in ['RAW', 'HEADER', 'BODY', 'YAML', 'JSON', 'NONE']:
+    if options.format not in ['RAW', 'HEADER', 'BODY', 'YAML', 'JSON', 'NONE']:
         error_exit('invalid output format %s\n' % options.format)
 
     body = ''

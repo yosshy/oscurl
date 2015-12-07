@@ -15,6 +15,7 @@ You can use oscurl with:
 * -p PATH|-P FULLPATH: Either fullpath(/v2/{tenant_id}/servers) or path(/servers).
 * -r: display HTTP request
 * -f FORMAT: RAW/HEADER/BODY/JSON/YAML/NONE format for HTTP response.
+* -t (public/internal/admin): API type
 * -d: debug mode
 
 
@@ -57,6 +58,7 @@ Installation
                            (RAW/HEADER/BODY/YAML/JSON/NONE), default=RAW
      -d, --debug           debug mode
      -r, --dump-request    dump HTTP request
+     -t API, --api=API     API type (public/internal/admin), default=public
    ```
 
 
