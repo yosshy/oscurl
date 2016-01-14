@@ -7,6 +7,7 @@ import optparse
 import os
 import logging
 import sys
+import time
 import urlparse
 import yaml
 
@@ -101,6 +102,9 @@ def get_token(service):
 def do_request(body, **kwargs):
     service = kwargs['service']
     (purl, iurl, aurl, token) = get_token(service)
+
+    if kwargs.get('delay'):
+    	time.sleep(65)
 
     if kwargs.get('api') == 'admin':
         url = aurl
@@ -216,6 +220,10 @@ if __name__ == '__main__':
                       default='public',
                       help="API type (public/internal/admin), "
                            "default=public")
+    parser.add_option("-z", "--delay",
+                      action="store_true", dest="delay",
+                      default=False,
+                      help="test mode, use expired token")
 
     (options, args) = parser.parse_args()
 
