@@ -2,13 +2,15 @@
 
 import argparse
 import fileinput
-import json
 import httplib
-import os
+import json
 import logging
+import os
 import sys
 import time
 import urlparse
+
+import os_client_config
 import yaml
 
 
@@ -45,73 +47,34 @@ def format_response_top(obj):
     return '%s %d %s' % (version_str, status, reason)
 
 
-def get_token(service):
-    for ev in ['OS_AUTH_URL', 'OS_TENANT_NAME', 'OS_USERNAME', 'OS_PASSWORD']:
-        if ev not in os.environ:
-            error_exit('%s not set\n' % ev)
+def get_token(cloud_config, options):
+    cloud = cloud_config.get_one_cloud(argparse=options)
+    try:
+        identity_client = cloud.get_session_client('identity')
+        token = identity_client.get_token()
+    except os_client_config.exceptions.OpenStackConfigException as e:
+        print 'Error occurs during authentication.'
+        print 'For most cases it is due to missing OS_* environment variables.'
+        print 'Check OS_ environment variables for authentication are set.'
+        print ('(like OS_AUTH_URL/OS_TENANT_NAME/OS_USERNAME/OS_PASSWORD '
+               'or OS_CLOUD)')
+        sys.exit(1)
 
-    urlobj = urlparse.urlparse(os.environ['OS_AUTH_URL'])
-    host = urlobj.hostname
-    port = urlobj.port
-    base_path = urlobj.path.rstrip('/')
-    if urlobj.scheme == 'http':
-        conn = httplib.HTTPConnection(host, port)
-    elif urlobj.scheme == 'https':
-        conn = httplib.HTTPSConnection(host, port)
-    else:
-        error_exit('Invalid schema in OS_AUTH_URL\n')
+    endpoint_url = cloud.get_session_endpoint(options.service)
+    if not endpoint_url:
+        print "No endpoint is found for service '%s'" % options.service
+        print ("(Note that service name like 'nova' or 'cinder' is "
+               "no longer supported.)")
+        sys.exit(1)
 
-    request_body = {
-        "auth": {
-            "tenantName": os.environ['OS_TENANT_NAME'],
-            "passwordCredentials": {
-                "username": os.environ['OS_USERNAME'],
-                "password": os.environ['OS_PASSWORD']
-            }
-        }
-    }
-    request_headers = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    }
-
-    conn.request('POST', base_path + '/tokens',
-                 json.dumps(request_body), request_headers)
-
-    response = conn.getresponse()
-    if not 200 <= response.status < 300:
-        error_exit('HTTP access failed: status=%d %s\n' % (
-                   response.status, response.reason))
-
-    response_body = json.loads(response.read())
-
-    for s in response_body['access']['serviceCatalog']:
-        if s['name'] == service or s['type'] == service:
-            break
-    else:
-        error_exit('Service %s not found\n' % service)
-
-    public_url = s['endpoints'][0]['publicURL']
-    internal_url = s['endpoints'][0]['internalURL']
-    admin_url = s['endpoints'][0]['adminURL']
-    token = response_body['access']['token']['id']
-
-    return (public_url, internal_url, admin_url, token)
+    return (endpoint_url, token)
 
 
-def do_request(body, options):
-    service = options.service
-    (purl, iurl, aurl, token) = get_token(service)
+def do_request(body, cloud_config, options):
+    (url, token) = get_token(cloud_config, options)
 
     if options.delay:
         time.sleep(65)
-
-    if options.api == 'admin':
-        url = aurl
-    elif options.api == 'internal':
-        url = iurl
-    else:
-        url = purl
 
     urlobj = urlparse.urlparse(url)
     host = urlobj.hostname
@@ -188,10 +151,8 @@ if __name__ == '__main__':
                         nargs='*',
                         help='JSON file which contains a request body')
     parser.add_argument("-s", "--service",
-                        help=("service name "
-                              "(cinder/ec2/glance/keystone/nova/quantum)"
-                              " or type "
-                              "(volume/ec2/image/identity/compute/network)"
+                        help=("service type "
+                              "(volume/image/identity/compute/network/...)"
                               ", default=%s" % default_service),
                         default=default_service)
     parser.add_argument("-m", "--method",
@@ -218,7 +179,6 @@ if __name__ == '__main__':
                         action="store_true",
                         help="dump HTTP request")
     parser.add_argument("-t", "--api",
-                        default='public',
                         choices=['public', 'internal', 'admin'],
                         help=("API type (public/internal/admin), "
                               "default=public"))
@@ -226,7 +186,20 @@ if __name__ == '__main__':
                         action="store_true",
                         help="test mode, use expired token")
 
+    # Use parse_known_args to show only oscurl options.
+    # os_client_config provides a lot of options and
+    # it might be annoying for existing oscurl users.
+    # Note that all os_client_config options like --os-cloud can be used.
+    parser.parse_known_args()
+
+    cloud_config = os_client_config.OpenStackConfig()
+    cloud_config.register_argparse_arguments(parser, sys.argv)
     options = parser.parse_args()
+
+    # os_client_config uses --os-interface option.
+    # Map --api option to --os-interface.
+    if options.api:
+        options.os_interface = options.api
 
     body = ''
     if options.request_body_file:
@@ -234,4 +207,4 @@ if __name__ == '__main__':
             body += line.strip()
         json.loads(body)
 
-    do_request(body, options)
+    do_request(body, cloud_config, options)
