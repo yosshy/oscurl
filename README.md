@@ -27,9 +27,9 @@ Installation
    $ git clone https://github.com/yosshy/oscurl.git
    ```
 
-2. Make it executable.
+2. Install python module dependencies into your system (or virtualenv).
    ```
-   $ chmod +x oscurl/oscurl
+   $ sudo pip install -r oscurl/requirements.txt
    ```
 
 3. Copy oscurl file under the execution path.
@@ -39,26 +39,33 @@ Installation
 
 4. Test oscurl.
    ```
-   $ oscurl -h
-   Usage: oscurl [options] [<request_body_file>]
+   usage: oscurl [-h] [-s SERVICE] [-m {GET,HEAD,POST,PUT,DELETE}] [-p PATH]
+                 [-P FULL_PATH] [-f {RAW,HEADER,BODY,YAML,JSON,NONE}] [-d] [-r]
+                 [-t {public,internal,admin}] [-z]
+                 [request_body_file [request_body_file ...]]
 
-   Options:
+   positional arguments:
+     request_body_file     JSON file which contains a request body
+
+   optional arguments:
      -h, --help            show this help message and exit
-     -s SERVICE, --service=SERVICE
-                           service name (cinder/ec2/glance/keystone/nova/quantum)
-                           or type (volume/ec2/image/identity/compute/network),
+     -s SERVICE, --service SERVICE
+                           service type
+                           (volume/image/identity/compute/network/...),
                            default=compute
-     -m METHOD, --method=METHOD
+     -m {GET,HEAD,POST,PUT,DELETE}, --method {GET,HEAD,POST,PUT,DELETE}
                            request method (GET/HEAD/POST/PUT/DELETE), default=GET
-     -p PATH, --path=PATH  differential path of URL
-     -P FULLPATH, --full-path=FULLPATH
+     -p PATH, --path PATH  differential path of URL
+     -P FULL_PATH, --full-path FULL_PATH
                            full path of URL
-     -f FORMAT, --format=FORMAT
+     -f {RAW,HEADER,BODY,YAML,JSON,NONE}, --format {RAW,HEADER,BODY,YAML,JSON,NONE}
                            format of response output
                            (RAW/HEADER/BODY/YAML/JSON/NONE), default=RAW
      -d, --debug           debug mode
      -r, --dump-request    dump HTTP request
-     -t API, --api=API     API type (public/internal/admin), default=public
+     -t {public,internal,admin}, --api {public,internal,admin}
+                           API type (public/internal/admin), default=public
+     -z, --delay           test mode, use expired token
    ```
 
 
