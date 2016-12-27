@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
+import argparse
 import fileinput
 import json
 import httplib
-import optparse
 import os
 import logging
 import sys
@@ -99,16 +99,16 @@ def get_token(service):
     return (public_url, internal_url, admin_url, token)
 
 
-def do_request(body, **kwargs):
-    service = kwargs['service']
+def do_request(body, options):
+    service = options.service
     (purl, iurl, aurl, token) = get_token(service)
 
-    if kwargs.get('delay'):
-    	time.sleep(65)
+    if options.delay:
+        time.sleep(65)
 
-    if kwargs.get('api') == 'admin':
+    if options.api == 'admin':
         url = aurl
-    elif kwargs.get('api') == 'internal':
+    elif options.api == 'internal':
         url = iurl
     else:
         url = purl
@@ -124,8 +124,8 @@ def do_request(body, **kwargs):
     else:
         error_exit('Invalid scheme in %s\n' % url)
 
-    method = kwargs['method']
-    path = base_path + kwargs['path']
+    method = options.method
+    path = base_path + options.path
 
     request_headers = {
         'Content-Type': 'application/json',
@@ -133,12 +133,12 @@ def do_request(body, **kwargs):
         'X-Auth-Token': token,
     }
 
-    if kwargs.get('fullpath'):
-        path = kwargs['fullpath']
+    if options.full_path:
+        path = options.full_path
 
-    if kwargs.get('debug'):
+    if options.debug:
         conn.set_debuglevel(1)
-    elif kwargs.get('dump_request'):
+    elif options.dump_request:
         patch_send()
 
     conn.request(method, path, body, request_headers)
@@ -147,7 +147,7 @@ def do_request(body, **kwargs):
         error_exit('HTTP access failed: status=%d %s\n' % (
                    response.status, response.reason))
 
-    format = kwargs['format']
+    format = options.format
     response_top = format_response_top(response)
     response_headers = response.msg
     response_body_str = response.read()
@@ -178,65 +178,60 @@ def do_request(body, **kwargs):
 if __name__ == '__main__':
 
     default_service = os.environ.get('OSCURL_SERVICE', 'compute')
+    supported_methods = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE']
     default_method = os.environ.get('OSCURL_METHOD', 'GET')
+    supported_formats = ['RAW', 'HEADER', 'BODY', 'YAML', 'JSON', 'NONE']
     default_format = os.environ.get('OSCURL_FORMAT', 'RAW')
 
-    usage = "usage: %prog [options] [<request_body_file>]"
-    parser = optparse.OptionParser(usage=usage)
-    parser.add_option("-s", "--service", dest="service",
-                      help="service name "
-                      "(cinder/ec2/glance/keystone/nova/quantum)"
-                      " or type "
-                      "(volume/ec2/image/identity/compute/network)"
-                      ", " +
-                           "default=%s" % default_service,
-                      metavar="SERVICE",
-                      default=default_service)
-    parser.add_option("-m", "--method", dest="method",
-                      help="request method "
-                           "(GET/HEAD/POST/PUT/DELETE), "
-                           "default=%s" % default_method,
-                      metavar="METHOD", default=default_method)
-    parser.add_option("-p", "--path", dest="path",
-                      help="differential path of URL", metavar="PATH",
-                      default='')
-    parser.add_option("-P", "--full-path", dest="fullpath",
-                      help="full path of URL", metavar="FULLPATH")
-    parser.add_option("-f", "--format", dest="format",
-                      help="format of response output "
-                           "(RAW/HEADER/BODY/YAML/JSON/NONE), "
-                           "default=%s" % default_format,
-                      metavar="FORMAT", default=default_format)
-    parser.add_option("-d", "--debug",
-                      action="store_true", dest="debug",
-                      default=False,
-                      help="debug mode")
-    parser.add_option("-r", "--dump-request",
-                      action="store_true", dest="dump_request",
-                      default=False,
-                      help="dump HTTP request")
-    parser.add_option("-t", "--api",
-                      dest="api",
-                      default='public',
-                      help="API type (public/internal/admin), "
-                           "default=public")
-    parser.add_option("-z", "--delay",
-                      action="store_true", dest="delay",
-                      default=False,
-                      help="test mode, use expired token")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('request_body_file',
+                        nargs='*',
+                        help='JSON file which contains a request body')
+    parser.add_argument("-s", "--service",
+                        help=("service name "
+                              "(cinder/ec2/glance/keystone/nova/quantum)"
+                              " or type "
+                              "(volume/ec2/image/identity/compute/network)"
+                              ", default=%s" % default_service),
+                        default=default_service)
+    parser.add_argument("-m", "--method",
+                        help=("request method "
+                              "(GET/HEAD/POST/PUT/DELETE), "
+                              "default=%s" % default_method),
+                        choices=supported_methods,
+                        default=default_method)
+    parser.add_argument("-p", "--path", dest="path",
+                        help="differential path of URL",
+                        default='')
+    parser.add_argument("-P", "--full-path",
+                        help="full path of URL")
+    parser.add_argument("-f", "--format", dest="format",
+                        help=("format of response output "
+                              "(RAW/HEADER/BODY/YAML/JSON/NONE), "
+                              "default=%s" % default_format),
+                        choices=supported_formats,
+                        default=default_format)
+    parser.add_argument("-d", "--debug",
+                        action="store_true",
+                        help="debug mode")
+    parser.add_argument("-r", "--dump-request",
+                        action="store_true",
+                        help="dump HTTP request")
+    parser.add_argument("-t", "--api",
+                        default='public',
+                        choices=['public', 'internal', 'admin'],
+                        help=("API type (public/internal/admin), "
+                              "default=public"))
+    parser.add_argument("-z", "--delay",
+                        action="store_true",
+                        help="test mode, use expired token")
 
-    (options, args) = parser.parse_args()
-
-    if options.method not in ['GET', 'HEAD', 'POST', 'PUT', 'DELETE']:
-        error_exit('invalid HTTP method %s\n' % options.method)
-
-    if options.format not in ['RAW', 'HEADER', 'BODY', 'YAML', 'JSON', 'NONE']:
-        error_exit('invalid output format %s\n' % options.format)
+    options = parser.parse_args()
 
     body = ''
-    if args:
-        for line in fileinput.input(args):
+    if options.request_body_file:
+        for line in fileinput.input(options.request_body_file):
             body += line.strip()
         json.loads(body)
 
-    do_request(body, **(options.__dict__))
+    do_request(body, options)
