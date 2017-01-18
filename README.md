@@ -8,6 +8,9 @@ confirm OpenStack APIs.
 And you don't have to handle Keystone authentication; oscurl does it 
 automatically with OpenStack credentials.
 
+oscurl supports multiple ways to specify keystone credentials:
+* Legacy way to use OS_* environment variables
+* os-client-config via OS_CLOUD environment variable
 
 You can use oscurl with:
 * -m METHOD: POST/PUT/GET/SHOW/HEAD method for HTTP requests.
@@ -22,31 +25,47 @@ You can use oscurl with:
 Installation
 ------------
 
-1. Download oscurl.
+oscurl is available at PyPI (the Python Packaging Index).
+To install oscurl, just run:
+
+```
+$ pip install oscurl
+```
+
+Usage
+-----
+
+1. Set environment variables as same as you use nova command.
    ```
-   $ git clone https://github.com/yosshy/oscurl.git
+   $ source credential_file
+   ```
+   or if you have os-client-config configuration like /etc/openstack/clouds.yaml,
+   ```
+   $ export OS_CLOUD=<env-name>
    ```
 
-2. Install python module dependencies into your system (or virtualenv).
+2. Run oscurl.
    ```
-   $ sudo pip install -r oscurl/requirements.txt
+   $ oscurl -p /servers
+   HTTP/1.1 200 OK
+   X-Compute-Request-Id: req-e5d6537e-9db8-48a2-abfb-f3a63f17add5
+   Content-Type: application/json
+   Content-Length: 15
+   Date: Sun, 22 Jun 2014 12:20:46 GMT
+   
+   {"servers": []}
    ```
 
-3. Copy oscurl file under the execution path.
-   ```
-   $ sudo cp oscurl/oscurl /usr/local/bin
-   ```
-
-4. Test oscurl.
+3. ``oscurl --help`` show the options.
    ```
    usage: oscurl [-h] [-s SERVICE] [-m {GET,HEAD,POST,PUT,DELETE}] [-p PATH]
                  [-P FULL_PATH] [-f {RAW,HEADER,BODY,YAML,JSON,NONE}] [-d] [-r]
                  [-t {public,internal,admin}] [-z]
                  [request_body_file [request_body_file ...]]
-
+   
    positional arguments:
      request_body_file     JSON file which contains a request body
-
+   
    optional arguments:
      -h, --help            show this help message and exit
      -s SERVICE, --service SERVICE
@@ -67,28 +86,6 @@ Installation
                            API type (public/internal/admin), default=public
      -z, --delay           test mode, use expired token
    ```
-
-
-Usage
------
-
-1. Set environment variables as same as you use nova command.
-   ```
-   $ source credential_file
-   ```
-
-2. Run oscurl.
-   ```
-   $ oscurl -p /servers
-   HTTP/1.1 200 OK
-   X-Compute-Request-Id: req-e5d6537e-9db8-48a2-abfb-f3a63f17add5
-   Content-Type: application/json
-   Content-Length: 15
-   Date: Sun, 22 Jun 2014 12:20:46 GMT
-   
-   {"servers": []}
-   ```
-
 
 Output Format
 -------------
