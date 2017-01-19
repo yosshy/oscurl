@@ -138,7 +138,8 @@ def do_request(body, cloud_config, options):
         response_body = json.loads(response_body_str)
         print(json.dumps(response_body, sort_keys=True, indent=2))
 
-if __name__ == '__main__':
+
+def main():
 
     default_service = os.environ.get('OSCURL_SERVICE', 'compute')
     supported_methods = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE']
@@ -208,3 +209,7 @@ if __name__ == '__main__':
         json.loads(body)
 
     do_request(body, cloud_config, options)
+
+
+if __name__ == '__main__':
+    main()
