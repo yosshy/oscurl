@@ -74,12 +74,11 @@ def do_request(body, cloud_config, options):
 
     method = options.method.upper()
     endpoint = client.get_endpoint()
-    path = endpoint + options.path
+    url = endpoint + options.path
 
     if options.full_path:
-        path = options.full_path
         o = urlparse.urlparse(endpoint)
-        path = "%s://%s%s" % (o.scheme, o.netloc, options.full_path)
+        url = "%s://%s%s" % (o.scheme, o.netloc, options.full_path)
 
     if options.debug:
         logging.basicConfig()
@@ -88,7 +87,7 @@ def do_request(body, cloud_config, options):
         requests_log.setLevel(logging.DEBUG)
         requests_log.propagate = True
 
-    response = client.get(path, data=body)
+    response = client.request(url, method, data=body)
     response.raise_for_status()
 
     format = options.format
