@@ -81,11 +81,7 @@ def do_request(body, cloud_config, options):
         url = "%s://%s%s" % (o.scheme, o.netloc, options.full_path)
 
     if options.debug:
-        logging.basicConfig()
-        logging.getLogger().setLevel(logging.DEBUG)
-        requests_log = logging.getLogger("requests.packages.urllib3")
-        requests_log.setLevel(logging.DEBUG)
-        requests_log.propagate = True
+        patch_send()
 
     response = client.request(url, method, data=body)
     response.raise_for_status()
