@@ -18,12 +18,6 @@ logging.basicConfig()
 LOG = logging.getLogger('oscurl')
 
 
-def error_exit(message):
-    sys.stdout.flush()
-    LOG.error(message)
-    sys.exit(1)
-
-
 def patch_send():
     old_send = httplib.HTTPConnection.send
 
