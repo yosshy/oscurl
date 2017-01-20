@@ -60,8 +60,16 @@ def get_token(cloud_config, options):
                'or OS_CLOUD)')
         sys.exit(1)
 
-    endpoint_url = cloud.get_session_endpoint(options.service)
-    if not endpoint_url:
+    # CloudConfig.get_session_endpoint() is broken for identity
+    session = cloud.get_session()
+    args = {
+        'service_type': cloud.get_service_type(options.service),
+        'interface': cloud.get_interface(options.api),
+        'region_name': cloud.region
+    }
+    try:
+        endpoint_url = session.get_endpoint(**args)
+    except keystoneauth1.exceptions.catalog.EndpointNotFound:
         print "No endpoint is found for service '%s'" % options.service
         print ("(Note that service name like 'nova' or 'cinder' is "
                "no longer supported.)")
