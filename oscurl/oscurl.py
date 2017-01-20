@@ -77,8 +77,7 @@ def do_request(body, cloud_config, options):
     if options.debug:
         patch_send()
 
-    response = client.request(url, method, data=body)
-    response.raise_for_status()
+    response = client.request(url, method, data=body, raise_exc=False)
 
     format = options.format
     response_top = format_response_top(response)
