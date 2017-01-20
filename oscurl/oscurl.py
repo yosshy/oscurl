@@ -35,8 +35,8 @@ def patch_send():
 
 
 def format_response_top(obj):
-    version = obj.version
-    status = obj.status
+    version = obj.raw.version
+    status = obj.status_code
     reason = obj.reason
     if version == 9:
         version_str = 'HTTP/0.9'
@@ -47,11 +47,16 @@ def format_response_top(obj):
     return '%s %d %s' % (version_str, status, reason)
 
 
-def get_token(cloud_config, options):
+def format_response_headers(obj):
+    header_string = ""
+    for key, value in obj.items():
+        header_string += "%s: %s\n" % (key, value)
+    return header_string
+
+def get_client(cloud_config, options):
     cloud = cloud_config.get_one_cloud(argparse=options)
     try:
-        identity_client = cloud.get_session_client('identity')
-        token = identity_client.get_token()
+        return cloud.get_session_client(options.service)
     except os_client_config.exceptions.OpenStackConfigException as e:
         print 'Error occurs during authentication.'
         print 'For most cases it is due to missing OS_* environment variables.'
@@ -60,91 +65,56 @@ def get_token(cloud_config, options):
                'or OS_CLOUD)')
         sys.exit(1)
 
-    # CloudConfig.get_session_endpoint() is broken for identity
-    session = cloud.get_session()
-    args = {
-        'service_type': cloud.get_service_type(options.service),
-        'interface': cloud.get_interface(options.api),
-        'region_name': cloud.region
-    }
-    try:
-        endpoint_url = session.get_endpoint(**args)
-    except keystoneauth1.exceptions.catalog.EndpointNotFound:
-        print "No endpoint is found for service '%s'" % options.service
-        print ("(Note that service name like 'nova' or 'cinder' is "
-               "no longer supported.)")
-        sys.exit(1)
-
-    return (endpoint_url, token)
-
 
 def do_request(body, cloud_config, options):
-    (url, token) = get_token(cloud_config, options)
+    client = get_client(cloud_config, options)
 
     if options.delay:
         time.sleep(65)
 
-    urlobj = urlparse.urlparse(url)
-    host = urlobj.hostname
-    port = urlobj.port
-    base_path = urlobj.path.rstrip('/')
-    if urlobj.scheme == 'http':
-        conn = httplib.HTTPConnection(host, port)
-    elif urlobj.scheme == 'https':
-        conn = httplib.HTTPSConnection(host, port)
-    else:
-        error_exit('Invalid scheme in %s\n' % url)
-
-    method = options.method
-    path = base_path + options.path
-
-    request_headers = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'X-Auth-Token': token,
-    }
+    method = options.method.upper()
+    endpoint = client.get_endpoint()
+    path = endpoint + options.path
 
     if options.full_path:
         path = options.full_path
+        o = urlparse.urlparse(endpoint)
+        path = "%s://%s%s" % (o.scheme, o.netloc, options.full_path)
 
     if options.debug:
-        conn.set_debuglevel(1)
-    elif options.dump_request:
-        patch_send()
+        logging.basicConfig()
+        logging.getLogger().setLevel(logging.DEBUG)
+        requests_log = logging.getLogger("requests.packages.urllib3")
+        requests_log.setLevel(logging.DEBUG)
+        requests_log.propagate = True
 
-    conn.request(method, path, body, request_headers)
-    response = conn.getresponse()
-    if not 200 <= response.status < 300:
-        error_exit('HTTP access failed: status=%d %s\n' % (
-                   response.status, response.reason))
+    response = client.get(path, data=body)
+    response.raise_for_status()
 
     format = options.format
     response_top = format_response_top(response)
-    response_headers = response.msg
-    response_body_str = response.read()
+    response_headers = format_response_headers(response.headers)
     if format == 'RAW':
         print(response_top)
         print(response_headers)
-        print(response_body_str)
+        print(response.content)
     elif format == 'HEADER':
         print(response_top)
         print(response_headers)
     elif format == 'BODY':
-        print(response_body_str)
+        print(response.content)
     elif format == 'YAML':
         print(response_top)
         print(response_headers)
-        if not response_body_str:
+        if not response.content:
             return
-        response_body = json.loads(response_body_str)
-        print(yaml.safe_dump(response_body, encoding='utf-8'))
+        print(yaml.safe_dump(response.json(), encoding='utf-8'))
     elif format == 'JSON':
         print(response_top)
         print(response_headers)
-        if not response_body_str:
+        if not response.content:
             return
-        response_body = json.loads(response_body_str)
-        print(json.dumps(response_body, sort_keys=True, indent=2))
+        print(json.dumps(response.json(), sort_keys=True, indent=2))
 
 
 def main():
