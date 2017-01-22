@@ -160,12 +160,19 @@ def main():
     parser.add_argument("-z", "--delay",
                         action="store_true",
                         help="test mode, use expired token")
+    parser.add_argument("--full-help",
+                        action="store_true",
+                        help=("Show full help message "
+                              "including os-client-config options."))
 
     # Use parse_known_args to show only oscurl options.
     # os_client_config provides a lot of options and
     # it might be annoying for existing oscurl users.
     # Note that all os_client_config options like --os-cloud can be used.
-    parser.parse_known_args()
+    options, _ = parser.parse_known_args()
+    if options.full_help:
+        # Add --help options to trigger os-client-config help
+        sys.argv.append('--help')
 
     cloud_config = os_client_config.OpenStackConfig()
     cloud_config.register_argparse_arguments(parser, sys.argv)
