@@ -6,6 +6,7 @@ import httplib
 import json
 import logging
 import os
+import string
 import sys
 import time
 import urlparse
@@ -125,25 +126,26 @@ def main():
                         nargs='*',
                         help='JSON file which contains a request body')
     parser.add_argument("-s", "--service",
-                        help=("service type "
-                              "(volume/image/identity/compute/network/...)"
-                              ", default=%s" % default_service),
+                        help=("service type (like volume, image, "
+                              "identity, compute, and network). "
+                              "default=%s" % default_service),
+                        type=string.lower,
                         default=default_service)
     parser.add_argument("-m", "--method",
-                        help=("request method "
-                              "(GET/HEAD/POST/PUT/DELETE), "
+                        help=("request method, "
                               "default=%s" % default_method),
+                        type=string.upper,
                         choices=supported_methods,
                         default=default_method)
     parser.add_argument("-p", "--path", dest="path",
-                        help="differential path of URL",
+                        help="path of URL relative to endpoint URL",
                         default='')
     parser.add_argument("-P", "--full-path",
                         help="full path of URL")
     parser.add_argument("-f", "--format", dest="format",
-                        help=("format of response output "
-                              "(RAW/HEADER/BODY/YAML/JSON/NONE), "
+                        help=("format of response output, "
                               "default=%s" % default_format),
+                        type=string.upper,
                         choices=supported_formats,
                         default=default_format)
     parser.add_argument("-d", "--debug",
@@ -154,17 +156,23 @@ def main():
                         help="dump HTTP request")
     parser.add_argument("-t", "--api",
                         choices=['public', 'internal', 'admin'],
-                        help=("API type (public/internal/admin), "
-                              "default=public"))
+                        help=("API type, default=public"))
     parser.add_argument("-z", "--delay",
                         action="store_true",
                         help="test mode, use expired token")
+    parser.add_argument("--full-help",
+                        action="store_true",
+                        help=("Show full help message "
+                              "including os-client-config options."))
 
     # Use parse_known_args to show only oscurl options.
     # os_client_config provides a lot of options and
     # it might be annoying for existing oscurl users.
     # Note that all os_client_config options like --os-cloud can be used.
-    parser.parse_known_args()
+    options, _ = parser.parse_known_args()
+    if options.full_help:
+        # Add --help options to trigger os-client-config help
+        sys.argv.append('--help')
 
     cloud_config = os_client_config.OpenStackConfig()
     cloud_config.register_argparse_arguments(parser, sys.argv)
