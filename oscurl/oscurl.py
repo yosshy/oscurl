@@ -48,6 +48,7 @@ def format_response_headers(obj):
         header_string += "%s: %s\n" % (key, value)
     return header_string
 
+
 def get_client(cloud_config, options):
     cloud = cloud_config.get_one_cloud(argparse=options)
     try:
@@ -55,9 +56,10 @@ def get_client(cloud_config, options):
     except os_client_config.exceptions.OpenStackConfigException as e:
         print 'Error occurs during authentication.'
         print 'For most cases it is due to missing OS_* environment variables.'
-        print 'Check OS_ environment variables for authentication are set.'
+        print 'Check OS_ environment variables for authentication are set'
         print ('(like OS_AUTH_URL/OS_TENANT_NAME/OS_USERNAME/OS_PASSWORD '
-               'or OS_CLOUD)')
+               'or OS_CLOUD).')
+        print '(Actual exception: %s)' % e
         sys.exit(1)
 
 
