@@ -1,2 +1,2 @@
-os_client_config
+os_client_config>=1.13.0
 PyYAML
