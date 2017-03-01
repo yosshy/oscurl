@@ -71,11 +71,12 @@ def do_request(body, cloud_config, options):
 
     method = options.method.upper()
     endpoint = client.get_endpoint()
-    url = endpoint + options.path
 
     if options.full_path:
         o = urlparse.urlparse(endpoint)
-        url = "%s://%s%s" % (o.scheme, o.netloc, options.full_path)
+        url = urlparse.urlunsplit((o.scheme, o.netloc, options.full_path, '', ''))
+    else:
+        url = urlparse.urljoin(endpoint, options.path)
 
     if options.debug:
         logging.basicConfig()
