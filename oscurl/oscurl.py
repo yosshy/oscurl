@@ -130,12 +130,14 @@ def main():
     parser.add_argument("-s", "--service",
                         help=("service type (like volume, image, "
                               "identity, compute, and network). "
-                              "default=%s" % default_service),
+                              "default=%s (env[OSCURL_SERVICE] or compute)"
+                              % default_service),
                         type=string.lower,
                         default=default_service)
     parser.add_argument("-m", "--method",
                         help=("request method, "
-                              "default=%s" % default_method),
+                              "default=%s (env[OSCURL_METHOD] or GET)"
+                              % default_method),
                         type=string.upper,
                         choices=supported_methods,
                         default=default_method)
@@ -146,7 +148,8 @@ def main():
                         help="full path of URL")
     parser.add_argument("-f", "--format", dest="format",
                         help=("format of response output, "
-                              "default=%s" % default_format),
+                              "default=%s (env[OSCURL_FORMAT] or RAW)"
+                              % default_format),
                         type=string.upper,
                         choices=supported_formats,
                         default=default_format)
