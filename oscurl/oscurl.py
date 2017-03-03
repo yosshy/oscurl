@@ -12,11 +12,14 @@ import time
 import urlparse
 
 import os_client_config
+import pbr
 import yaml
 
 
 logging.basicConfig()
 LOG = logging.getLogger('oscurl')
+
+VERSION = pbr.version.VersionInfo('oscurl').version_string_with_vcs()
 
 
 def patch_send():
@@ -124,7 +127,7 @@ def main():
     supported_formats = ['RAW', 'HEADER', 'BODY', 'YAML', 'JSON', 'NONE']
     default_format = os.environ.get('OSCURL_FORMAT', 'RAW')
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description='oscurl %s' % VERSION)
     parser.add_argument('request_body_file',
                         nargs='*',
                         help='JSON file which contains a request body')
@@ -170,6 +173,7 @@ def main():
                         action="store_true",
                         help=("Show full help message "
                               "including os-client-config options."))
+    parser.add_argument("-v", "--version", action="version", version=VERSION)
 
     # Use parse_known_args to show only oscurl options.
     # os_client_config provides a lot of options and
