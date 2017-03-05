@@ -1,18 +1,19 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import argparse
 import fileinput
-import httplib
 import json
 import logging
 import os
-import string
 import sys
 import time
-import urlparse
 
 import os_client_config
 import pbr
+from six.moves import http_client as httplib
+from six.moves.urllib import parse as urlparse
 import yaml
 
 
@@ -26,7 +27,8 @@ def patch_send():
     old_send = httplib.HTTPConnection.send
 
     def new_send(self, data):
-        print('==== HTTP REQUEST ====\n%s\n==== HTTP RESPONSE ====' % data)
+        print('==== HTTP REQUEST ====\n%s\n==== HTTP RESPONSE ====' %
+              data.decode())
         return old_send(self, data)
 
     httplib.HTTPConnection.send = new_send
@@ -57,12 +59,14 @@ def get_client(cloud_config, options):
     try:
         return cloud.get_session_client(options.service)
     except os_client_config.exceptions.OpenStackConfigException as e:
-        print 'Error occurs during authentication.'
-        print 'For most cases it is due to missing OS_* environment variables.'
-        print 'Check OS_ environment variables for authentication are set'
-        print ('(like OS_AUTH_URL/OS_TENANT_NAME/OS_USERNAME/OS_PASSWORD '
-               'or OS_CLOUD).')
-        print '(Actual exception: %s)' % e
+        print('''\
+Error occurs during authentication.
+
+For most cases it is due to missing OS_* environment variables.
+Check OS_ environment variables for authentication are set
+(like OS_AUTH_URL/OS_TENANT_NAME/OS_USERNAME/OS_PASSWORD or OS_CLOUD).
+
+Actual exception: %s''' % e)
         sys.exit(1)
 
 
@@ -119,6 +123,14 @@ def do_request(body, cloud_config, options):
         print(json.dumps(response.json(), sort_keys=True, indent=2))
 
 
+def string_lower(s):
+    return s.lower()
+
+
+def string_upper(s):
+    return s.upper()
+
+
 def main():
 
     default_service = os.environ.get('OSCURL_SERVICE', 'compute')
@@ -136,13 +148,13 @@ def main():
                               "identity, compute, and network). "
                               "default=%s (env[OSCURL_SERVICE] or compute)"
                               % default_service),
-                        type=string.lower,
+                        type=string_lower,
                         default=default_service)
     parser.add_argument("-m", "--method",
                         help=("request method, "
                               "default=%s (env[OSCURL_METHOD] or GET)"
                               % default_method),
-                        type=string.upper,
+                        type=string_upper,
                         choices=supported_methods,
                         default=default_method)
     parser.add_argument("-p", "--path", dest="path",
@@ -154,7 +166,7 @@ def main():
                         help=("format of response output, "
                               "default=%s (env[OSCURL_FORMAT] or RAW)"
                               % default_format),
-                        type=string.upper,
+                        type=string_upper,
                         choices=supported_formats,
                         default=default_format)
     parser.add_argument("-d", "--debug",
