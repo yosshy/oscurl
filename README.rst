@@ -5,13 +5,20 @@ oscurl
 URL path and body of HTTP requests freely. It's useful to test, check or
 confirm OpenStack APIs.
 
-You don't need to handle Keystone authentication; **oscurl** does it
-automatically with OpenStack credentials.
+Features
+--------
 
-**oscurl** supports multiple ways to specify keystone credentials:
+* cURL-like access to OpenStack APIs
+* Handle Keystone authentication and insert ``X-Auth-Token`` header;
+  You do not need to handle Keystone authentication manually
+* Construct URL based on OpenStack service endpoints (relative mode)
+* Support multiple output formats: raw, YAML, JSON, header only and body only
+* Show request header and body
+* Keystone v3 and v2 support
+* Support multiple ways to specify keystone credentials:
 
-* Legacy way to use ``OS_*`` environment variables
-* os-client-config via ``OS_CLOUD`` environment variable
+  * Legacy way to use ``OS_*`` environment variables
+  * os-client-config via ``OS_CLOUD`` environment variable
 
 Installation
 ------------
