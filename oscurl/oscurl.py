@@ -4,16 +4,16 @@ from __future__ import print_function
 
 import argparse
 import fileinput
-import httplib
 import json
 import logging
 import os
 import sys
 import time
-import urlparse
 
 import os_client_config
 import pbr
+from six.moves import http_client as httplib
+from six.moves.urllib import parse as urlparse
 import yaml
 
 
