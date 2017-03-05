@@ -77,7 +77,8 @@ def do_request(body, cloud_config, options):
 
     if options.full_path:
         o = urlparse.urlparse(endpoint)
-        url = urlparse.urlunsplit((o.scheme, o.netloc, options.full_path, '', ''))
+        url = urlparse.urlunsplit((o.scheme, o.netloc,
+                                   options.full_path, '', ''))
     else:
         url = urlparse.urljoin(endpoint, options.path)
 
