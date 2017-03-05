@@ -20,6 +20,8 @@ Features
   * Legacy way to use ``OS_*`` environment variables
   * os-client-config via ``OS_CLOUD`` environment variable
 
+* JSON input for ``POST`` and ``PUT`` requests
+
 Installation
 ------------
 
@@ -104,9 +106,16 @@ Examples
 
    $ oscurl -s network -p /v2.0/ports
 
-* Create a new instance::
+* Create a new instance by passing the input as JSON file::
 
-   $ cat create_instance_body
+   $ oscurl -m POST -p /servers -i create_instance_body.json
+
+  or::
+
+   $ oscurl -m POST -p /servers -i - < create_instance_body.json
+
+  The content of ``create_instance_body.json`` is like below::
+
    {
        "server": {
            "name": "server-test-1",
@@ -126,11 +135,6 @@ Examples
            ]
        }
    }
-   $ oscurl -m POST -p /servers create_instance_body
-
-  or::
-
-   $ oscurl -m POST -p /servers - < create_instance_body
 
 * Show an instance information::
 

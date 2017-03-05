@@ -3,7 +3,6 @@
 from __future__ import print_function
 
 import argparse
-import fileinput
 import json
 import logging
 import os
@@ -141,9 +140,6 @@ def main():
     default_format = os.environ.get('OSCURL_FORMAT', 'RAW')
 
     parser = argparse.ArgumentParser(description='oscurl %s' % VERSION)
-    parser.add_argument('request_body_file',
-                        nargs='*',
-                        help='JSON file which contains a request body')
     parser.add_argument("-s", "--service",
                         help=("service type (like volume, image, "
                               "identity, compute, and network). "
@@ -179,6 +175,9 @@ def main():
     parser.add_argument("-t", "--api",
                         choices=['public', 'internal', 'admin'],
                         help=("API type, default=public"))
+    parser.add_argument("-i", "--input-file",
+                        help=("JSON file which contains a request body. "
+                              "'-' reads data from standard input."))
     parser.add_argument("-z", "--delay",
                         action="store_true",
                         help="test mode, use expired token")
@@ -206,11 +205,16 @@ def main():
     if options.api:
         options.os_interface = options.api
 
-    body = ''
-    if options.request_body_file:
-        for line in fileinput.input(options.request_body_file):
-            body += line.strip()
+    if options.input_file:
+        if options.input_file == '-':
+            body = sys.stdin.read()
+        else:
+            with open(options.input_file) as f:
+                body = f.read()
+        # Validate the body has valid JSON
         json.loads(body)
+    else:
+        body = None
 
     do_request(body, cloud_config, options)
 
