@@ -27,7 +27,8 @@ def patch_send():
     old_send = httplib.HTTPConnection.send
 
     def new_send(self, data):
-        print('==== HTTP REQUEST ====\n%s\n==== HTTP RESPONSE ====' % data)
+        print('==== HTTP REQUEST ====\n%s\n==== HTTP RESPONSE ====' %
+              data.decode())
         return old_send(self, data)
 
     httplib.HTTPConnection.send = new_send
