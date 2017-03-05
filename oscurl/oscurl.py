@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import argparse
 import fileinput
 import httplib
@@ -57,12 +59,14 @@ def get_client(cloud_config, options):
     try:
         return cloud.get_session_client(options.service)
     except os_client_config.exceptions.OpenStackConfigException as e:
-        print 'Error occurs during authentication.'
-        print 'For most cases it is due to missing OS_* environment variables.'
-        print 'Check OS_ environment variables for authentication are set'
-        print ('(like OS_AUTH_URL/OS_TENANT_NAME/OS_USERNAME/OS_PASSWORD '
-               'or OS_CLOUD).')
-        print '(Actual exception: %s)' % e
+        print('''\
+Error occurs during authentication.
+
+For most cases it is due to missing OS_* environment variables.
+Check OS_ environment variables for authentication are set
+(like OS_AUTH_URL/OS_TENANT_NAME/OS_USERNAME/OS_PASSWORD or OS_CLOUD).
+
+Actual exception: %s''' % e)
         sys.exit(1)
 
 
