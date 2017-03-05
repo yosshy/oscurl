@@ -8,7 +8,6 @@ import httplib
 import json
 import logging
 import os
-import string
 import sys
 import time
 import urlparse
@@ -123,6 +122,14 @@ def do_request(body, cloud_config, options):
         print(json.dumps(response.json(), sort_keys=True, indent=2))
 
 
+def string_lower(s):
+    return s.lower()
+
+
+def string_upper(s):
+    return s.upper()
+
+
 def main():
 
     default_service = os.environ.get('OSCURL_SERVICE', 'compute')
@@ -140,13 +147,13 @@ def main():
                               "identity, compute, and network). "
                               "default=%s (env[OSCURL_SERVICE] or compute)"
                               % default_service),
-                        type=string.lower,
+                        type=string_lower,
                         default=default_service)
     parser.add_argument("-m", "--method",
                         help=("request method, "
                               "default=%s (env[OSCURL_METHOD] or GET)"
                               % default_method),
-                        type=string.upper,
+                        type=string_upper,
                         choices=supported_methods,
                         default=default_method)
     parser.add_argument("-p", "--path", dest="path",
@@ -158,7 +165,7 @@ def main():
                         help=("format of response output, "
                               "default=%s (env[OSCURL_FORMAT] or RAW)"
                               % default_format),
-                        type=string.upper,
+                        type=string_upper,
                         choices=supported_formats,
                         default=default_format)
     parser.add_argument("-d", "--debug",
