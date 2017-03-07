@@ -20,6 +20,8 @@ Features
   * Legacy way to use ``OS_*`` environment variables
   * os-client-config via ``OS_CLOUD`` environment variable
 
+* JSON input for ``POST`` and ``PUT`` requests
+
 Installation
 ------------
 
@@ -53,60 +55,51 @@ Usage
 3. ``oscurl --help`` shows the options.
    ``oscurl --full-help`` shows the options from os-client-config too.
 
+Environment Variables
+---------------------
+
+The following environment variables can be used
+to change the default behavior.
+
+* ``OSCURL_SERVICE``: the default service type.
+  Service types registered in Keystone service catalog like
+  like ``compute``, ``volume``, ``identity``, ``image`` and ``network``
+* ``OSCURL_FORMAT``: the default format used to display API responses
+* ``OSCURL_METHOD``: the default method to be used
+
 Examples
 --------
 
-* Get server list::
+* Get server list from Nova::
 
   $ oscurl -p /servers
 
-* Get flavor list::
+* Get flavor list from Nova::
 
   $ oscurl -p /flavors
-
-* Get image list from Nova::
-
-  $ oscurl -p /images
 
 * Get image list from Glance::
 
   $ oscurl -s image -p /images
 
-* Get volume list from Nova::
-
-  $ oscurl -p /os-volumes
-
-* Get volume snapshot list from Nova::
-
-  $ oscurl -p /os-snapshots
-
 * Get volume list from Cinder::
 
   $ oscurl -s volume -p /volumes
-
-* Get volume list from Cinder::
-
-  $ oscurl -s volume -p /snapshots
-
-* Get network list from Nova::
-
-   $  oscurl -p /os-networks
 
 * Get network list from Neutron::
 
    $ oscurl -s network -p /v2.0/networks
 
-* Get subnet list::
+* Create a new instance by passing the input as JSON file::
 
-   $ oscurl -s network -p /v2.0/subnets
+   $ oscurl -m POST -p /servers -i create_instance_body.json
 
-* Get network port list::
+  or::
 
-   $ oscurl -s network -p /v2.0/ports
+   $ oscurl -m POST -p /servers -i - < create_instance_body.json
 
-* Create a new instance::
+  The content of ``create_instance_body.json`` is like below::
 
-   $ cat create_instance_body
    {
        "server": {
            "name": "server-test-1",
@@ -126,11 +119,6 @@ Examples
            ]
        }
    }
-   $ oscurl -m POST -p /servers create_instance_body
-
-  or::
-
-   $ oscurl -m POST -p /servers - < create_instance_body
 
 * Show an instance information::
 
@@ -215,7 +203,7 @@ Output Format
        rel: bookmark}
      name: server-test-1
 
-* -r: With HTTP request::
+* ``-r``: With HTTP request::
 
    $ oscurl -p /servers -r
    ==== HTTP REQUEST ====
