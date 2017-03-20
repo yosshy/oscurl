@@ -77,13 +77,19 @@ def do_request(body, cloud_config, options):
 
     method = options.method.upper()
     endpoint = client.get_endpoint()
-
+    # If the base URL (the first parameter) does not end with /
+    # urlparse.urljoin drops the last component of endpoint.
+    # We need to ensure / exists at the last to keep the base URL.
+    endpoint = endpoint.rstrip('/') + '/'
+    # If the second parameter passed to urljoin starts with /,
+    # it will be passed as an absolute path.
+    # Otherwise, it will be interpreted as relative.
     if options.full_path:
-        o = urlparse.urlparse(endpoint)
-        url = urlparse.urlunsplit((o.scheme, o.netloc,
-                                   options.full_path, '', ''))
+        path = '/' + options.full_path.lstrip('/')
     else:
-        url = urlparse.urljoin(endpoint, options.path)
+        path = options.path.lstrip('/')
+
+    url = urlparse.urljoin(endpoint, path)
 
     if options.debug:
         logging.basicConfig()
