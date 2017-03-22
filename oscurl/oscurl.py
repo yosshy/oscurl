@@ -101,7 +101,12 @@ def do_request(body, cloud_config, options):
     if options.dump_request:
         patch_send()
 
-    response = client.request(url, method, data=body, raise_exc=False)
+    headers = {}
+    if options.micro_version:
+        headers['OpenStack-Api-Version'] = '%s %s' %(options.service,
+                                                     options.micro_version)
+    response = client.request(url, method, data=body, headers=headers,
+                              raise_exc=False)
 
     format = options.format
     response_top = format_response_top(response)
@@ -153,6 +158,10 @@ def main():
                               % default_service),
                         type=string_lower,
                         default=default_service)
+    parser.add_argument("-V", "--micro-version",
+                        default='latest',
+                        help=("API microversion to be used, "
+                              "default=latest"))
     parser.add_argument("-m", "--method",
                         help=("request method, "
                               "default=%s (env[OSCURL_METHOD] or GET)"

@@ -15,6 +15,7 @@ Features
 * Support multiple output formats: raw, YAML, JSON, header only and body only
 * Show request header and body
 * Keystone v3 and v2 support
+* Microversioning header support. 'latest' is used by default.
 * Support multiple ways to specify keystone credentials:
 
   * Legacy way to use ``OS_*`` environment variables
