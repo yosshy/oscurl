@@ -72,9 +72,6 @@ Actual exception: %s''' % e)
 def do_request(body, cloud_config, options):
     client = get_client(cloud_config, options)
 
-    if options.delay:
-        time.sleep(65)
-
     method = options.method.upper()
     endpoint = client.get_endpoint()
     # If the base URL (the first parameter) does not end with /
@@ -198,9 +195,6 @@ def main():
     parser.add_argument("-i", "--input-file",
                         help=("JSON file which contains a request body. "
                               "'-' reads data from standard input."))
-    parser.add_argument("-z", "--delay",
-                        action="store_true",
-                        help="test mode, use expired token")
 
     # Use parse_known_args to show only oscurl options.
     # os_client_config provides a lot of options and
