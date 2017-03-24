@@ -6,6 +6,7 @@ import argparse
 import json
 import logging
 import os
+import pprint
 import sys
 import time
 
@@ -95,7 +96,11 @@ def do_request(body, cloud_config, options):
         requests_log.setLevel(logging.DEBUG)
         requests_log.propagate = True
 
-    if options.dump_request:
+    show_request = options.show_mode == 'ALL'
+    show_resp_header = options.show_mode in ['ALL', 'RESP']
+    show_resp_body = options.show_mode in ['ALL', 'RESP', 'BODY']
+
+    if show_request:
         patch_send()
 
     headers = {}
@@ -105,29 +110,33 @@ def do_request(body, cloud_config, options):
     response = client.request(url, method, data=body, headers=headers,
                               raise_exc=False)
 
-    format = options.format
-    response_top = format_response_top(response)
-    response_headers = format_response_headers(response.headers)
-    if format == 'RAW':
-        print(response_top)
-        print(response_headers)
+    if show_resp_header:
+        print(format_response_top(response))
+        print(format_response_headers(response.headers))
+
+    if show_resp_body:
+        dump_body(response, options.body_format)
+
+
+def dump_body(response, body_format):
+    if body_format == 'RAW':
         print(response.content)
-    elif format == 'HEADER':
-        print(response_top)
-        print(response_headers)
-    elif format == 'BODY':
-        print(response.content)
-    elif format == 'YAML':
-        print(response_top)
-        print(response_headers)
-        if not response.content:
-            return
-        print(yaml.safe_dump(response.json(), encoding='utf-8'))
-    elif format == 'JSON':
-        print(response_top)
-        print(response_headers)
-        if not response.content:
-            return
+        return
+
+    # YAML or JSON format
+    try:
+        data = response.json()
+    except ValueError:
+        # Output raw data as fallback
+        msg = '[!!!] Non-JSON data is returned. Displaying raw data.'
+        print('-' * len(msg), file=sys.stderr)
+        print(msg, file=sys.stderr)
+        print('-' * len(msg), file=sys.stderr)
+        pprint.pprint(response.content)
+        return
+    if body_format == 'YAML':
+        print(yaml.safe_dump(data, encoding='utf-8'))
+    else:
         print(json.dumps(response.json(), sort_keys=True, indent=2))
 
 
@@ -144,8 +153,10 @@ def main():
     default_service = os.environ.get('OSCURL_SERVICE', 'compute')
     supported_methods = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE']
     default_method = os.environ.get('OSCURL_METHOD', 'GET')
-    supported_formats = ['RAW', 'HEADER', 'BODY', 'YAML', 'JSON', 'NONE']
+    supported_formats = ['RAW', 'YAML', 'JSON']
     default_format = os.environ.get('OSCURL_FORMAT', 'RAW')
+    supported_show_modes = ['ALL', 'RESP', 'BODY']
+    default_show_mode = 'ALL'
 
     parser = argparse.ArgumentParser(description='oscurl %s' % VERSION)
     parser.add_argument("--full-help",
@@ -179,16 +190,23 @@ def main():
                         default='')
     parser.add_argument("-P", "--full-path",
                         help="full path of URL")
-    parser.add_argument("-f", "--format", dest="format",
+    parser.add_argument("-f", "--format", dest="body_format",
                         help=("format of response output, "
                               "default=%s (env[OSCURL_FORMAT] or RAW)"
                               % default_format),
                         type=string_upper,
                         choices=supported_formats,
                         default=default_format)
-    parser.add_argument("-r", "--dump-request",
-                        action="store_true",
-                        help="dump HTTP request")
+    parser.add_argument("-M", "--show-mode",
+                        help=("Specify which part of request/response "
+                              "should be displayed, "
+                              "ALL (request and response), "
+                              "RESP (response header and body), "
+                              "BODY (response body only), "
+                              "default: ALL"),
+                        type=string_upper,
+                        choices=supported_show_modes,
+                        default=default_show_mode)
     parser.add_argument("-t", "--api",
                         choices=['public', 'internal', 'admin'],
                         help=("API type, default=public"))
