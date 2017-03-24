@@ -129,99 +129,88 @@ Examples
 
    $ oscurl -p /servers/fdec5b9e-9b6a-4eb4-8684-6c75cd275559 -m DELETE
 
+Output mode
+-----------
+
+``--show-mode`` controls what are shown.
+
+* ``ALL`` shows request and response including both headers and body.
+* ``RESP`` shows response headers and body. Request headers and body
+  are not shown.
+* ``BODY`` shows response body only. Useful if you pass output
+  to another program like ``jq``.
+
 Output Format
 -------------
 
-* RAW: Both HTTP response headers and body (Default)::
+``--format`` controls the output format of response body.
 
-   $ oscurl -p /servers
+* ``RAW``: Show response body as-is (Default)::
+
+   $ oscurl -p /servers -r RESP
    HTTP/1.1 200 OK
-   X-Compute-Request-Id: req-f2c0adc9-288b-4a65-8243-b112d1dc60b6
+   Content-Length: 296
    Content-Type: application/json
-   Content-Length: 366
-   Date: Sun, 22 Jun 2014 12:25:16 GMT
+   Openstack-Api-Version: compute 2.42
+   X-Openstack-Nova-Api-Version: 2.42
+   Vary: OpenStack-API-Version, X-OpenStack-Nova-API-Version
+   X-Compute-Request-Id: req-565bb028-c144-40cc-8fb5-52f1c5ff3b58
+   Date: Fri, 24 Mar 2017 09:07:08 GMT
+   Connection: keep-alive
 
-   {"servers": [{"id": "fdec5b9e-9b6a-4eb4-8684-6c75cd275559", "links": [{"href": "http://192.168.0.11:8774/v2/d046e2315c27456b9eb26740a9e39143/servers/fdec5b9e-9b6a-4eb4-8684-6c75cd275559", "rel": "self"}, {"href": "http://192.168.0.11:8774/d046e2315c27456b9eb26740a9e39143/servers/fdec5b9e-9b6a-4eb4-8684-6c75cd275559", "rel": "bookmark"}], "name": "server-test-1"}]}
+   {"servers": [{"id": "2820fcfc-3cd2-4a40-8c01-3c9544cfbc59", "links": [{"href": "http://172.27.201.206:8774/v2.1/servers/2820fcfc-3cd2-4a40-8c01-3c9544cfbc59", "rel": "self"}, {"href": "http://172.27.201.206:8774/servers/2820fcfc-3cd2-4a40-8c01-3c9544cfbc59", "rel": "bookmark"}], "name": "vm1"}]}
 
-* HEADER: Only HTTP response headers::
+* ``JSON``: Human-readable JSON format::
 
-   $ oscurl -p /servers -f HEADER
+   $ oscurl -p /servers --show-mode RESP -f JSON
    HTTP/1.1 200 OK
-   X-Compute-Request-Id: req-f2c0adc9-288b-4a65-8243-b112d1dc60b6
+   Content-Length: 296
    Content-Type: application/json
-   Content-Length: 366
-   Date: Sun, 22 Jun 2014 12:25:16 GMT
-
-
-* BODY: Only HTTP response body::
-
-   $ oscurl -p /servers -f BODY
-   {"servers": [{"id": "fdec5b9e-9b6a-4eb4-8684-6c75cd275559", "links": [{"href": "http://192.168.0.11:8774/v2/d046e2315c27456b9eb26740a9e39143/servers/fdec5b9e-9b6a-4eb4-8684-6c75cd275559", "rel": "self"}, {"href": "http://192.168.0.11:8774/d046e2315c27456b9eb26740a9e39143/servers/fdec5b9e-9b6a-4eb4-8684-6c75cd275559", "rel": "bookmark"}], "name": "server-test-1"}]}
-
-* JSON: Human-readable JSON format::
-
-   $ oscurl -p /servers -f JSON
-   HTTP/1.1 200 OK
-   X-Compute-Request-Id: req-cf070813-5259-4b83-86bd-e4e2c6d31d1f
-   Content-Type: application/json
-   Content-Length: 366
-   Date: Sun, 22 Jun 2014 12:27:38 GMT
+   Openstack-Api-Version: compute 2.42
+   X-Openstack-Nova-Api-Version: 2.42
+   Vary: OpenStack-API-Version, X-OpenStack-Nova-API-Version
+   X-Compute-Request-Id: req-3293cc26-c336-454a-b361-0a97aaa8c571
+   Date: Fri, 24 Mar 2017 09:09:14 GMT
+   Connection: keep-alive
 
    {
      "servers": [
        {
-         "id": "fdec5b9e-9b6a-4eb4-8684-6c75cd275559",
+         "id": "2820fcfc-3cd2-4a40-8c01-3c9544cfbc59", 
          "links": [
            {
-             "href": "http://192.168.0.11:8774/v2/d046e2315c27456b9eb26740a9e39143/servers/fdec5b9e-9b6a-4eb4-8684-6c75cd275559",
+             "href": "http://172.27.201.206:8774/v2.1/servers/2820fcfc-3cd2-4a40-8c01-3c9544cfbc59", 
              "rel": "self"
-           },
+           }, 
            {
-             "href": "http://192.168.0.11:8774/d046e2315c27456b9eb26740a9e39143/servers/fdec5b9e-9b6a-4eb4-8684-6c75cd275559",
+             "href": "http://172.27.201.206:8774/servers/2820fcfc-3cd2-4a40-8c01-3c9544cfbc59", 
              "rel": "bookmark"
            }
-         ],
-         "name": "server-test-1"
+         ], 
+         "name": "vm1"
        }
      ]
    }
 
-* YAML: HTTP response body in YAML::
+* ``YAML``: HTTP response body in YAML::
 
-   $ oscurl -p /servers -f YAML
+   $ oscurl -p /servers --show-mode RESP -f YAML
    HTTP/1.1 200 OK
-   X-Compute-Request-Id: req-14638074-8093-42d1-b872-5a4e6a5ebb6a
+   Content-Length: 296
    Content-Type: application/json
-   Content-Length: 366
-   Date: Sun, 22 Jun 2014 12:29:30 GMT
+   Openstack-Api-Version: compute 2.42
+   X-Openstack-Nova-Api-Version: 2.42
+   Vary: OpenStack-API-Version, X-OpenStack-Nova-API-Version
+   X-Compute-Request-Id: req-69d39243-cd55-4ee8-a6cf-9eb7a7e94fad
+   Date: Fri, 24 Mar 2017 09:11:18 GMT
+   Connection: keep-alive
 
    servers:
-   - id: fdec5b9e-9b6a-4eb4-8684-6c75cd275559
+   - id: 2820fcfc-3cd2-4a40-8c01-3c9544cfbc59
      links:
-     - {href: 'http://192.168.0.11:8774/v2/d046e2315c27456b9eb26740a9e39143/servers/fdec5b9e-9b6a-4eb4-8684-6c75cd275559',
+     - {href: 'http://172.27.201.206:8774/v2.1/servers/2820fcfc-3cd2-4a40-8c01-3c9544cfbc59',
        rel: self}
-     - {href: 'http://192.168.0.11:8774/d046e2315c27456b9eb26740a9e39143/servers/fdec5b9e-9b6a-4eb4-8684-6c75cd275559',
+     - {href: 'http://172.27.201.206:8774/servers/2820fcfc-3cd2-4a40-8c01-3c9544cfbc59',
        rel: bookmark}
-     name: server-test-1
-
-* ``-r``: With HTTP request::
-
-   $ oscurl -p /servers -r
-   ==== HTTP REQUEST ====
-   GET /v2/d046e2315c27456b9eb26740a9e39143/servers HTTP/1.1
-   Host: 192.168.0.11:8774
-   Accept-Encoding: identity
-   Content-Type: application/json
-   Accept: application/json
-   X-Auth-Token: MIIKswYJKoZ...KZ1BBJg==
-
-
-   ==== HTTP RESPONSE ====
-   HTTP/1.1 200 OK
-   X-Compute-Request-Id: req-85955345-f8c4-41e9-859c-c20b5b1355f6
-   Content-Type: application/json
-   Content-Length: 366
-   Date: Sun, 22 Jun 2014 12:31:31 GMT
-
-   {"servers": [{"id": "fdec5b9e-9b6a-4eb4-8684-6c75cd275559", "links": [{"href": "http://192.168.0.11:8774/v2/d046e2315c27456b9eb26740a9e39143/servers/fdec5b9e-9b6a-4eb4-8684-6c75cd275559", "rel": "self"}, {"href": "http://192.168.0.11:8774/d046e2315c27456b9eb26740a9e39143/servers/fdec5b9e-9b6a-4eb4-8684-6c75cd275559", "rel": "bookmark"}], "name": "server-test-1"}]}
+     name: vm1
 
