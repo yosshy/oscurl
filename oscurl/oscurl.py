@@ -103,8 +103,8 @@ def do_request(body, cloud_config, options):
 
     headers = {}
     if options.micro_version:
-        headers['OpenStack-Api-Version'] = '%s %s' %(options.service,
-                                                     options.micro_version)
+        headers['OpenStack-Api-Version'] = '%s %s' % (options.service,
+                                                      options.micro_version)
     response = client.request(url, method, data=body, headers=headers,
                               raise_exc=False)
 
