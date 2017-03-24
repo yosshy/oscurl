@@ -151,6 +151,14 @@ def main():
     default_format = os.environ.get('OSCURL_FORMAT', 'RAW')
 
     parser = argparse.ArgumentParser(description='oscurl %s' % VERSION)
+    parser.add_argument("--full-help",
+                        action="store_true",
+                        help=("Show full help message "
+                              "including os-client-config options."))
+    parser.add_argument("-d", "--debug",
+                        action="store_true",
+                        help="debug mode")
+    parser.add_argument("-v", "--version", action="version", version=VERSION)
     parser.add_argument("-s", "--service",
                         help=("service type (like volume, image, "
                               "identity, compute, and network). "
@@ -181,9 +189,6 @@ def main():
                         type=string_upper,
                         choices=supported_formats,
                         default=default_format)
-    parser.add_argument("-d", "--debug",
-                        action="store_true",
-                        help="debug mode")
     parser.add_argument("-r", "--dump-request",
                         action="store_true",
                         help="dump HTTP request")
@@ -196,11 +201,6 @@ def main():
     parser.add_argument("-z", "--delay",
                         action="store_true",
                         help="test mode, use expired token")
-    parser.add_argument("--full-help",
-                        action="store_true",
-                        help=("Show full help message "
-                              "including os-client-config options."))
-    parser.add_argument("-v", "--version", action="version", version=VERSION)
 
     # Use parse_known_args to show only oscurl options.
     # os_client_config provides a lot of options and
